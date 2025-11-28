@@ -1,0 +1,263 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import { getSiteSettings } from '../lib/site';
+
+const site = await getSiteSettings();
+const research = (await getCollection('research')).sort((a, b) => a.data.title.localeCompare(b.data.title));
+const publications = (await getCollection('publications')).sort((a, b) => b.data.year - a.data.year);
+const updates = (await getCollection('updates')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const latestPublication = publications[0];
+const featuredResearch = research.slice(0, 2);
+const upcomingUpdate = updates.find((entry) => entry.data.category === 'talk') ?? updates[0];
+
+const quickStats = [
+	{ label: 'Publications', value: publications.length },
+	{ label: 'Research Areas', value: research.length },
+	{ label: 'News items', value: updates.length }
+];
+const structuredData = {
+	'@context': 'https://schema.org',
+	'@type': 'Person',
+	name: site.hero.name,
+	jobTitle: site.hero.title,
+	affiliation: site.hero.affiliation,
+	description: site.hero.mission,
+	sameAs: [
+		site.social.scholar,
+		site.social.github,
+		site.social.linkedin,
+		site.social.orcid,
+		site.social.cv
+	]
+};
+---
+
+<BaseLayout title="Home" description={site.hero.mission} structuredData={structuredData}>
+	<section class="hero surface">
+		<div class="hero__content">
+			<p class="tag">{site.hero.affiliation}</p>
+			<h1>{site.hero.name}</h1>
+			<p class="hero__subtitle">{site.hero.mission}</p>
+			<div class="hero__meta">
+				<div>
+					<p class="hero__label">Location</p>
+					<p>{site.hero.location}</p>
+				</div>
+				{site.hero.availability && (
+					<div>
+						<p class="hero__label">Currently</p>
+						<p>{site.hero.availability}</p>
+					</div>
+				)}
+			</div>
+			<div class="hero__actions">
+				<a class="button-primary" href="/publications">Explore Publications</a>
+				<a class="button-ghost" href="/research">Research Areas →</a>
+			</div>
+		</div>
+		<div class="hero__side">
+			<figure class="hero__portrait">
+				<img src="/myphoto.jpg" alt={`Portrait of ${site.hero.name}`} loading="lazy" />
+				<figcaption>{site.hero.name}</figcaption>
+			</figure>
+			<div class="hero__stats">
+				{quickStats.map((stat) => (
+					<div class="stat">
+						<p class="stat__value">{stat.value}</p>
+						<p class="stat__label">{stat.label}</p>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="section__head">
+			<h2>Highlights</h2>
+			<p>Recent work, projects, and appearances.</p>
+		</div>
+		<div class="highlight-grid">
+			{latestPublication && (
+				<article class="surface highlight">
+					<p class="tag">Latest publication</p>
+					<h3>{latestPublication.data.title}</h3>
+					<p class="highlight__meta">
+						{latestPublication.data.venue} · {latestPublication.data.year}
+					</p>
+					<p>{latestPublication.data.summary}</p>
+					<div class="highlight__links">
+						{latestPublication.data.links.pdf && <a href={latestPublication.data.links.pdf}>PDF</a>}
+						{latestPublication.data.links.project && <a href={latestPublication.data.links.project}>Project</a>}
+						<a href="/publications">View all →</a>
+					</div>
+				</article>
+			)}
+			{featuredResearch.map((topic) => (
+				<article class="surface highlight">
+					<p class="tag">Research focus</p>
+					<h3>{topic.data.title}</h3>
+					<p>{topic.data.summary}</p>
+					<div class="highlight__links">
+						<a href={`/research#${topic.slug}`}>Dive deeper →</a>
+					</div>
+				</article>
+			))}
+			{upcomingUpdate && (
+				<article class="surface highlight">
+					<p class="tag">{upcomingUpdate.data.category}</p>
+					<h3>{upcomingUpdate.data.title}</h3>
+					<p>{new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(upcomingUpdate.data.date)}</p>
+					<p>{upcomingUpdate.data.summary}</p>
+					<div class="highlight__links">
+						{upcomingUpdate.data.links.map((link) => (
+							<a href={link.url}>{link.label}</a>
+						))}
+						<a href="/updates">Updates archive →</a>
+					</div>
+				</article>
+			)}
+		</div>
+	</section>
+
+	<section class="section">
+		<div class="section__head">
+			<h2>Quick links</h2>
+			<p>Jump straight into the work.</p>
+		</div>
+		<div class="quick-links">
+			<a class="surface" href="/research">
+				<h3>Research Areas</h3>
+				<p>Methodology deep dives, keywords, and collaborators.</p>
+			</a>
+			<a class="surface" href="/publications">
+				<h3>Publications</h3>
+				<p>Peer-reviewed papers with filters, badges, and artifacts.</p>
+			</a>
+			<a class="surface" href="/biography">
+				<h3>Biography</h3>
+				<p>Education, collaborations, service, and honors timeline.</p>
+			</a>
+		</div>
+	</section>
+</BaseLayout>
+
+<style>
+	.hero {
+		display: grid;
+		gap: 2rem;
+	}
+	.hero__subtitle {
+		font-size: 1.25rem;
+		color: var(--text-muted);
+	}
+	.hero__meta {
+		display: grid;
+		gap: 0.5rem;
+		margin: 1.5rem 0;
+	}
+	.hero__label {
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		color: var(--text-muted);
+		letter-spacing: 0.1em;
+		margin: 0;
+	}
+	.hero__actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 1rem;
+	}
+	.hero__side {
+		display: flex;
+		flex-direction: column;
+		gap: 1.25rem;
+		align-items: center;
+	}
+	.hero__portrait {
+		margin: 0;
+		text-align: center;
+		padding: 1rem;
+		border-radius: 1.25rem;
+		border: 1px solid var(--border);
+		background: linear-gradient(160deg, var(--surface-elevated), var(--surface-muted));
+		box-shadow: var(--shadow);
+	}
+	.hero__portrait img {
+		width: min(200px, 60vw);
+		max-width: 200px;
+		aspect-ratio: 3 / 4;
+		object-fit: cover;
+		border-radius: 1rem;
+		border: 2px solid rgba(255, 255, 255, 0.6);
+	}
+	.hero__portrait figcaption {
+		margin-top: 0.5rem;
+		font-weight: 600;
+		color: var(--text-muted);
+		font-size: 0.95rem;
+	}
+	.hero__stats {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		gap: 1rem;
+	}
+	.stat {
+		padding: 1rem;
+		border-radius: 1rem;
+		border: 1px solid var(--border);
+		text-align: center;
+	}
+	.stat__value {
+		font-size: 2rem;
+		font-weight: 700;
+		margin: 0;
+	}
+	.stat__label {
+		margin: 0;
+		color: var(--text-muted);
+	}
+	.section {
+		margin-top: 3rem;
+	}
+	.section__head h2 {
+		margin-bottom: 0.35rem;
+	}
+	.highlight-grid {
+		display: grid;
+		gap: 1.5rem;
+	}
+	.highlight__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		margin-top: 1rem;
+	}
+	.quick-links {
+		display: grid;
+		gap: 1rem;
+	}
+	.quick-links a {
+		display: block;
+	}
+	@media (min-width: 900px) {
+		.hero {
+			grid-template-columns: minmax(0, 2.6fr) minmax(240px, 1fr);
+			align-items: stretch;
+		}
+		.hero__side {
+			align-items: stretch;
+			justify-content: space-between;
+		}
+		.hero__portrait {
+			align-self: center;
+		}
+		.highlight-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+		.quick-links {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+</style>

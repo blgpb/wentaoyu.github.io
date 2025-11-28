@@ -1,0 +1,185 @@
+---
+import '../styles/global.css';
+import { getSiteSettings } from '../lib/site';
+
+interface Props {
+	title?: string;
+	description?: string;
+	section?: string;
+	ogImage?: string;
+	structuredData?: Record<string, unknown>;
+}
+
+const { title, description, section, ogImage, structuredData } = Astro.props as Props;
+const site = await getSiteSettings();
+const pageTitle = title ? `${title} · ${site.hero.name}` : `${site.hero.name} · ${site.hero.title}`;
+const pageDescription = description ?? site.hero.mission;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com').toString();
+const navItems = [
+	{ label: 'Home', href: '/' },
+	{ label: 'Research Areas', href: '/research' },
+	{ label: 'Publications', href: '/publications' },
+	{ label: 'Biography', href: '/biography' },
+	{ label: 'Contact', href: '/contact' },
+	{ label: 'Updates', href: '/updates' }
+];
+const activePath = Astro.url.pathname.replace(/\/$/, '') || '/';
+const lastUpdated = new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(new Date());
+---
+<!doctype html>
+<html lang="en" data-theme="light">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<title>{pageTitle}</title>
+		<meta name="description" content={pageDescription} />
+		<meta property="og:title" content={pageTitle} />
+		<meta property="og:description" content={pageDescription} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonical} />
+		{ogImage && <meta property="og:image" content={ogImage} />}
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content={pageTitle} />
+		<meta name="twitter:description" content={pageDescription} />
+		<link rel="canonical" href={canonical} />
+		{section && <meta property="article:section" content={section} />}
+		{structuredData && (
+			<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+		)}
+	</head>
+	<body>
+		<a class="skip-link" href="#main">Skip to content</a>
+		<header>
+			<div class="layout-shell">
+				<div class="nav surface">
+					<div>
+						<a class="brand" href="/">
+							<span class="brand__name">{site.hero.name}</span>
+							<span class="brand__role">{site.hero.title}</span>
+						</a>
+					</div>
+					<nav aria-label="Primary">
+						<ul>
+							{navItems.map((item) => (
+								<li>
+									<a class={['nav__link', activePath === item.href ? 'is-active' : ''].join(' ')} href={item.href}>
+										{item.label}
+									</a>
+								</li>
+							))}
+						</ul>
+					</nav>
+					<button class="button-ghost" id="theme-toggle" aria-label="Toggle color theme">
+						<span aria-hidden="true">🌓</span>
+						<span class="sr-only">Toggle theme</span>
+					</button>
+				</div>
+			</div>
+		</header>
+		<main id="main" class="layout-shell">
+			<slot />
+		</main>
+		<footer>
+			<div class="layout-shell">
+				<div class="footer surface">
+					<p>
+						&copy; {new Date().getFullYear()} {site.footer.copyrightName}. Last updated {lastUpdated}.
+					</p>
+					<div class="footer__links">
+						<a href={site.social.cv} target="_blank" rel="noreferrer">CV</a>
+						<a href={site.social.scholar} target="_blank" rel="noreferrer">Google Scholar</a>
+						<a href={site.social.github} target="_blank" rel="noreferrer">GitHub</a>
+						<a href={site.social.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+						<a href={site.social.orcid} target="_blank" rel="noreferrer">ORCID</a>
+					</div>
+					<p class="footer__caption">Built with Astro · Accessible & performant by design.</p>
+				</div>
+			</div>
+		</footer>
+		<script is:inline>
+			const STORAGE_KEY = 'site-theme-preference';
+			const root = document.documentElement;
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+			const current = localStorage.getItem(STORAGE_KEY) ?? (prefersDark.matches ? 'dark' : 'light');
+			root.dataset.theme = current;
+			const toggleButton = document.getElementById('theme-toggle');
+			const toggle = () => {
+				const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+				root.dataset.theme = next;
+				localStorage.setItem(STORAGE_KEY, next);
+			};
+			toggleButton?.addEventListener('click', toggle);
+			prefersDark.addEventListener('change', (event) => {
+				if (!localStorage.getItem(STORAGE_KEY)) {
+					root.dataset.theme = event.matches ? 'dark' : 'light';
+				}
+			});
+		</script>
+	</body>
+</html>
+
+<style>
+	header {
+		background: rgba(15, 23, 42, 0.02);
+		border-bottom: 1px solid var(--border);
+	}
+	.nav {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+	}
+	.nav ul {
+		list-style: none;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		padding: 0;
+		margin: 0;
+	}
+	.nav__link {
+		padding: 0.4rem 0.9rem;
+		border-radius: 999px;
+		border: 1px solid transparent;
+		color: var(--text);
+		font-weight: 600;
+	}
+	.nav__link.is-active {
+		border-color: var(--border);
+		background: var(--surface-muted);
+	}
+	.brand {
+		display: flex;
+		flex-direction: column;
+	}
+	.brand__name {
+		font-size: 1.1rem;
+		font-weight: 700;
+	}
+	.brand__role {
+		font-size: 0.85rem;
+		color: var(--text-muted);
+	}
+	.footer {
+		margin-top: 3rem;
+		text-align: center;
+	}
+	.footer__links {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+		justify-content: center;
+		margin: 1rem 0;
+	}
+	.footer__caption {
+		color: var(--text-muted);
+		font-size: 0.9rem;
+	}
+	@media (min-width: 900px) {
+		.nav {
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+	}
+</style>

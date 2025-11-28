@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const research = (await getCollection('research')).sort((a, b) => a.data.title.localeCompare(b.data.title));
+const publications = await getCollection('publications');
+const publicationsById = new Map(publications.map((pub) => [pub.id, pub]));
+---
+
+<BaseLayout title="Research Areas" description="Federated learning, trustworthy AI, and graph neural operators.">
+  <section class="section">
+    <div class="section__head">
+      <h1>Research Areas</h1>
+      <p>Each card links to related publications, data artifacts, and collaboration notes.</p>
+    </div>
+    <div class="research-grid">
+      {research.map((topic) => (
+        <article class="surface research-card" id={topic.slug}>
+          {topic.data.figure && <img src={topic.data.figure.src} alt={topic.data.figure.alt} loading="lazy" />}
+          <div class="flow">
+            <h2>{topic.data.title}</h2>
+            <p>{topic.data.description}</p>
+            <div class="keywords">
+              {topic.data.keywords.map((keyword) => (
+                <span class="tag">{keyword}</span>
+              ))}
+            </div>
+            {topic.data.links.length > 0 && (
+              <div class="links">
+                {topic.data.links.map((link) => (
+                  <a href={link.url}>{link.label} →</a>
+                ))}
+              </div>
+            )}
+            {topic.data.relatedPublications.length > 0 && (
+              <div>
+                <p class="research-card__subhead">Related publications</p>
+                <ul>
+                  {topic.data.relatedPublications.map((slug) => {
+                    const related = publicationsById.get(slug);
+                    if (!related) return null;
+                    return (
+                      <li>
+                        <a href={`/publications#${related.slug}`}>
+                          {related.data.title} ({related.data.venue} {related.data.year})
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .research-grid {
+    display: grid;
+    gap: 2rem;
+  }
+  .research-card h2 {
+    margin: 0;
+  }
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .research-card__subhead {
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+  }
+  @media (min-width: 900px) {
+    .research-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

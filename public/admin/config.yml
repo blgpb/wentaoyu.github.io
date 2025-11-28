@@ -1,0 +1,104 @@
+backend:
+  name: github
+  repo: blgpb/wentaoyu.github.io
+  branch: main
+  base_url: https://api.netlify.com
+  auth_endpoint: auth
+media_folder: "public/uploads"
+public_folder: "/uploads"
+
+site_url: https://example.com
+logo_url: https://astro.build/favicon.svg
+
+collections:
+  - name: research
+    label: Research Areas
+    folder: "src/content/research"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Description, name: description, widget: text }
+      - { label: Keywords, name: keywords, widget: list }
+      - { label: Figure URL, name: figure.src, widget: string, required: false }
+      - { label: Figure Alt, name: figure.alt, widget: string, required: false }
+      - { label: Links, name: links, widget: list, required: false, fields: [ {label: Label, name: label, widget: string}, {label: URL, name: url, widget: string} ] }
+      - { label: Related Publications, name: relatedPublications, widget: list, required: false }
+  - name: publications
+    label: Publications
+    folder: "src/content/publications"
+    create: true
+    slug: "{{year}}-{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Venue, name: venue, widget: string }
+      - { label: Year, name: year, widget: number }
+      - { label: Authors, name: authors, widget: list, field: { label: Author, name: author, widget: string } }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Abstract, name: abstract, widget: markdown }
+      - { label: Topics, name: topics, widget: list }
+      - { label: Awards, name: awards, widget: list, required: false }
+      - { label: DOI, name: doi, widget: string, required: false }
+      - { label: Featured, name: featured, widget: boolean, required: false }
+      - label: Links
+        name: links
+        widget: object
+        fields:
+          - { label: PDF, name: pdf, widget: string, required: false }
+          - { label: ArXiv, name: arxiv, widget: string, required: false }
+          - { label: Project, name: project, widget: string, required: false }
+          - { label: Slides, name: slides, widget: string, required: false }
+          - { label: Code, name: code, widget: string, required: false }
+          - { label: Video, name: video, widget: string, required: false }
+      - { label: Badges, name: badges, widget: list, required: false }
+  - name: updates
+    label: Updates
+    folder: "src/content/updates"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Date, name: date, widget: datetime }
+      - { label: Category, name: category, widget: select, options: [publication, talk, award, grant, media, service, reflection] }
+      - { label: Summary, name: summary, widget: text }
+      - { label: Links, name: links, widget: list, required: false, fields: [ {label: Label, name: label, widget: string}, {label: URL, name: url, widget: string} ] }
+  - name: bio
+    label: Biography Timeline
+    folder: "src/content/bio"
+    create: true
+    slug: "{{year}}-{{slug}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Organization, name: organization, widget: string }
+      - { label: Start, name: start, widget: datetime }
+      - { label: End, name: end, widget: string, hint: "Use 'present' for ongoing entries", required: false }
+      - { label: Location, name: location, widget: string }
+      - { label: Description, name: description, widget: text }
+      - { label: Type, name: type, widget: select, options: [education, research, teaching, service, honor] }
+      - { label: Highlights, name: highlights, widget: list, required: false }
+  - name: settings
+    label: Site Settings
+    files:
+      - label: General
+        name: site
+        file: "src/content/settings/site.json"
+        fields:
+          - { label: Name, name: hero.name, widget: string }
+          - { label: Title, name: hero.title, widget: string }
+          - { label: Pronouns, name: hero.pronouns, widget: string, required: false }
+          - { label: Affiliation, name: hero.affiliation, widget: string }
+          - { label: Mission, name: hero.mission, widget: text }
+          - { label: Location, name: hero.location, widget: string }
+          - { label: Availability, name: hero.availability, widget: string, required: false }
+          - { label: Contact Email, name: contact.email, widget: string }
+          - { label: Office, name: contact.office, widget: string, required: false }
+          - { label: Address, name: contact.address, widget: text }
+          - { label: Office Hours, name: contact.officeHours, widget: string, required: false }
+          - { label: CV URL, name: social.cv, widget: string }
+          - { label: Scholar URL, name: social.scholar, widget: string }
+          - { label: GitHub URL, name: social.github, widget: string }
+          - { label: LinkedIn URL, name: social.linkedin, widget: string }
+          - { label: ORCID URL, name: social.orcid, widget: string }
+          - { label: Twitter URL, name: social.twitter, widget: string, required: false }
+          - { label: Footer Name, name: footer.copyrightName, widget: string }

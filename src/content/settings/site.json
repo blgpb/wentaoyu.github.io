@@ -1,0 +1,28 @@
+{
+  "hero": {
+    "name": "Dr. Wentao Yu",
+    "title": "PhD Candidate, Computer Science",
+    "pronouns": "they/them",
+    "affiliation": "School of Computer Science and Engineering, Nanjing University of Science and Technology",
+    "mission": "I build trustworthy federated graph systems that empower scientific collaboration without sacrificing privacy.",
+    "location": "Nanjing, China",
+    "availability": "Open to research collaborations, visiting opportunities, and industry internships."
+  },
+  "contact": {
+    "email": "wentao.yu [at] njust.edu.cn",
+    "office": "Computer Science Building, NJUST",
+    "address": "200 Xiaolingwei Street, Xuanwu District, Nanjing, Jiangsu, 210094, China",
+    "officeHours": "24/7 via email"
+  },
+  "social": {
+    "scholar": "https://scholar.google.com/citations?hl=zh-CN&user=yscnb4sAAAAJ",
+    "github": "https://github.com/blgpb",
+    "linkedin": "https://www.linkedin.com/",
+    "orcid": "https://orcid.org/0000-0003-1416-5255",
+    "twitter": "https://twitter.com/",
+    "cv": "https://example.com/cv.pdf"
+  },
+  "footer": {
+    "copyrightName": "Wentao Yu"
+  }
+}

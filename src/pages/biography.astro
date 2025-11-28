@@ -1,0 +1,92 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection, type CollectionEntry } from 'astro:content';
+
+const entries = (await getCollection('bio')).sort((a, b) => b.data.start.getTime() - a.data.start.getTime());
+const grouped = entries.reduce<Record<string, CollectionEntry<'bio'>[]>>((acc, entry) => {
+  const bucket = entry.data.type;
+  acc[bucket] = acc[bucket] ?? [];
+  acc[bucket].push(entry);
+  return acc;
+}, {} as Record<string, typeof entries>);
+const sections = [
+  { key: 'education', label: 'Education' },
+  { key: 'research', label: 'Research Experience' },
+  { key: 'teaching', label: 'Teaching & Service' },
+  { key: 'honor', label: 'Honors' }
+];
+---
+
+<BaseLayout title="Biography" description="Education, collaborations, and service timeline." section="Biography">
+  <section class="section">
+    <div class="section__head">
+      <h1>Biography</h1>
+      <p>A scannable timeline of degrees, research experience, and collaborations.</p>
+    </div>
+    <div class="timeline">
+      {sections.map((section) => (
+        grouped[section.key] && (
+          <div class="timeline__section">
+            <h2>{section.label}</h2>
+            <ol>
+              {grouped[section.key].map((entry) => (
+                <li class="surface timeline__item">
+                  <div class="timeline__meta">
+                    <span class="timeline__dates">
+                      {new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric' }).format(entry.data.start)}
+                      {' '}–{' '}
+                      {entry.data.end === null || entry.data.end === undefined
+                        ? 'Present'
+                        : new Intl.DateTimeFormat('en', { month: 'short', year: 'numeric' }).format(entry.data.end)}
+                    </span>
+                    <span class="timeline__location">{entry.data.location}</span>
+                  </div>
+                  <h3>{entry.data.title}</h3>
+                  <p class="timeline__org">{entry.data.organization}</p>
+                  <p>{entry.data.description}</p>
+                  {entry.data.highlights.length > 0 && (
+                    <ul class="highlights">
+                      {entry.data.highlights.map((item) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </div>
+        )
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .timeline__section + .timeline__section {
+    margin-top: 2.5rem;
+  }
+  .timeline__section h2 {
+    margin-bottom: 1rem;
+  }
+  .timeline__item {
+    position: relative;
+    margin-bottom: 1.5rem;
+  }
+  .timeline__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+  }
+  .timeline__org {
+    font-weight: 600;
+    margin: 0.25rem 0 0.5rem;
+  }
+  .highlights {
+    margin: 0.5rem 0 0 1rem;
+  }
+  .highlights li::marker {
+    color: var(--brand);
+  }
+</style>

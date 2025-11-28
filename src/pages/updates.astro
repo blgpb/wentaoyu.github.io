@@ -1,0 +1,52 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const updates = (await getCollection('updates')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+---
+
+<BaseLayout title="Updates" description="News, talks, grants, and reflections." section="Updates">
+  <section class="section">
+    <div class="section__head">
+      <h1>Updates</h1>
+      <p>A running log of news, talks, awards, grants, and reflections.</p>
+      <a class="button-ghost" href="/rss.xml">Subscribe via RSS</a>
+    </div>
+    <ol class="updates">
+      {updates.map((item) => (
+        <li class="surface">
+          <p class="tag">{item.data.category}</p>
+          <h2>{item.data.title}</h2>
+          <p class="updates__date">{new Intl.DateTimeFormat('en', { dateStyle: 'medium' }).format(item.data.date)}</p>
+          <p>{item.data.summary}</p>
+          {item.data.links.length > 0 && (
+            <div class="links">
+              {item.data.links.map((link) => (
+                <a href={link.url}>{link.label}</a>
+              ))}
+            </div>
+          )}
+        </li>
+      ))}
+    </ol>
+  </section>
+</BaseLayout>
+
+<style>
+  .updates {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .updates__date {
+    color: var(--text-muted);
+  }
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+</style>

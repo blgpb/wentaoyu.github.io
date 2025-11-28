@@ -1,0 +1,169 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const publications = (await getCollection('publications')).sort((a, b) => b.data.year - a.data.year);
+const years = Array.from(new Set(publications.map((pub) => pub.data.year))).sort((a, b) => b - a);
+const topics = Array.from(new Set(publications.flatMap((pub) => pub.data.topics))).sort();
+---
+
+<BaseLayout title="Publications" description="Peer-reviewed work with artifacts and awards." section="Publications">
+  <section class="section">
+    <div class="section__head">
+      <h1>Publications</h1>
+      <p>Filter by year, topic, or keyword. Badges highlight awards and reproducibility artifacts.</p>
+    </div>
+    <form class="filters surface" aria-label="Publication filters">
+      <label>
+        Year
+        <select id="filter-year">
+          <option value="all">All years</option>
+          {years.map((year) => (
+            <option value={String(year)}>{year}</option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Topic
+        <select id="filter-topic">
+          <option value="all">All topics</option>
+          {topics.map((topic) => (
+            <option value={topic}>{topic}</option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Keyword search
+        <input id="filter-search" type="search" placeholder="Title, venue, author" />
+      </label>
+    </form>
+
+    <div id="publication-list" class="publication-grid">
+      {publications.map((pub) => (
+        <article
+          class="surface publication"
+          id={pub.slug}
+          data-year={String(pub.data.year)}
+          data-topics={pub.data.topics.join(',').toLowerCase()}
+          data-text={[pub.data.title, pub.data.summary, pub.data.authors.join(' '), pub.data.venue].join(' ').toLowerCase()}
+        >
+          <div class="publication__head">
+            <div>
+              <p class="tag">{pub.data.venue} · {pub.data.year}</p>
+              <h2>{pub.data.title}</h2>
+              <p class="authors">{pub.data.authors.join(', ')}</p>
+            </div>
+            {pub.data.awards.length > 0 && (
+              <div class="awards">
+                {pub.data.awards.map((award) => (
+                  <span class="award">{award}</span>
+                ))}
+              </div>
+            )}
+          </div>
+          <p>{pub.data.summary}</p>
+          <p class="abstract">{pub.data.abstract}</p>
+          <div class="topics">
+            {pub.data.topics.map((topic) => (
+              <span class="tag">{topic}</span>
+            ))}
+          </div>
+          {pub.data.badges.length > 0 && (
+            <div class="badges">
+              {pub.data.badges.map((badge) => (
+                <span>{badge}</span>
+              ))}
+            </div>
+          )}
+          <div class="links">
+            {Object.entries(pub.data.links).map(([label, url]) =>
+              url ? (
+                <a href={url} target="_blank" rel="noreferrer">{label.toUpperCase()}</a>
+              ) : null
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+  const list = document.getElementById('publication-list');
+  const yearSelect = document.getElementById('filter-year');
+  const topicSelect = document.getElementById('filter-topic');
+  const searchInput = document.getElementById('filter-search');
+
+  const applyFilters = () => {
+    const year = yearSelect.value;
+    const topic = topicSelect.value.toLowerCase();
+    const query = searchInput.value.trim().toLowerCase();
+
+    list.querySelectorAll('.publication').forEach((card) => {
+      const matchesYear = year === 'all' || card.dataset.year === year;
+      const matchesTopic = topic === 'all' || card.dataset.topics?.includes(topic);
+      const matchesQuery = !query || card.dataset.text?.includes(query);
+      card.toggleAttribute('hidden', !(matchesYear && matchesTopic && matchesQuery));
+    });
+  };
+
+  yearSelect.addEventListener('change', applyFilters);
+  topicSelect.addEventListener('change', applyFilters);
+  searchInput.addEventListener('input', applyFilters);
+</script>
+
+<style>
+  .filters {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .publication-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .publication__head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .authors {
+    color: var(--text-muted);
+    margin: 0;
+  }
+  .awards,
+  .badges,
+  .links,
+  .topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .award {
+    background: var(--danger);
+    color: white;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .badges span {
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px dashed var(--border);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .links a {
+    font-weight: 600;
+  }
+  .abstract {
+    color: var(--text-muted);
+  }
+  @media (min-width: 900px) {
+    .filters {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>

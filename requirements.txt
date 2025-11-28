@@ -1,0 +1,60 @@
+Academic Personal Website Requirements
+=====================================
+
+1. Objectives & Audience
+   - Showcase the portfolio of a Computer Science PhD student (research areas, publications, collaborations) to peers, faculty, and potential industry partners.
+   - Maintain a professional, accessible, English-only presence that can be kept up to date via a lightweight admin/editor workflow.
+
+2. Information Architecture
+   - Primary navigation items: Home, Research Areas, Publications, Biography, Contact, plus an optional Updates section for news/talks/awards.
+   - Global footer with copyright notice, last-updated timestamp, and quick links to CV, Google Scholar, GitHub, LinkedIn, and ORCID.
+
+3. Page-Level Requirements
+   a. Home
+      - Hero section with name, title, affiliation, and a concise research mission statement.
+      - Highlight cards for the latest publication, current project, or upcoming talk.
+      - Quick links to Research Areas and Publications.
+   b. Research Areas
+      - One card per topic (e.g., Federated Learning, Graph Neural Networks, Trustworthy AI) containing a short description, keywords, and representative figures/diagrams.
+      - Each card links to related publications and project pages.
+   c. Publications
+      - Tabular or card list with title, venue, year, co-authors, abstract/summary, and badges for awards or best paper.
+      - Links to PDF/ArXiv, project page, slides, and source code when available.
+      - Filters by year/topic and a keyword search box.
+   d. Biography
+      - Detailed narrative covering education, research experience, collaborations, teaching/service, honors, and downloadable CV.
+      - Timeline layout or sectioned cards to keep the page scannable.
+   e. Contact
+      - Email (with anti-scraping obfuscation), institutional address, office hours if applicable, external profiles (Scholar, GitHub, LinkedIn, Twitter/X).
+      - Secure contact form (name/email/message) with basic spam protection (honeypot or reCAPTCHA).
+   f. Updates (optional)
+      - Chronological list of recent news, talks, grants, media mentions, or blog-style reflections.
+
+4. Visual & UX Guidelines
+   - Clean, research-centric look with a professional color palette and typography that works well for long-form reading.
+   - Responsive layout (desktop, tablet, mobile) with performance budget <2 MB initial load; include dark/light theme toggle.
+   - Accessibility: semantic HTML, proper heading hierarchy, alt text for images, focus-visible styles, and keyboard navigation.
+
+5. Content Management / Backend Editing
+   - Provide an authenticated admin surface (e.g., Netlify CMS, TinaCMS, or a minimal custom dashboard) to edit publications, research areas, and news without touching code.
+   - Content stored in Markdown/JSON/YAML files within the repository so edits remain version-controlled.
+   - Include documentation for adding/removing entries, updating assets, and publishing changes.
+
+6. Technical Stack & Hosting
+   - Build with a static-first framework (Next.js, Astro, or Hugo) to simplify deployment and keep costs at zero.
+   - Configure GitHub Pages (preferred) or Vercel for free hosting; include CI workflow (GitHub Actions) to lint, build, and deploy on push to main.
+   - Add SEO metadata (title/description/open-graph), sitemap.xml, RSS feed for Updates, and optional analytics (Plausible/GA) via environment flag.
+
+7. Extensibility & Future Work
+   - Hooks for integrating Google Scholar API or Semantic Scholar for automatic publication updates.
+   - Support embedding interactive visualizations (e.g., research demos) and video talks.
+   - Optional newsletter or RSS subscription component.
+
+8. Deliverables
+   - Wireframes for each page, style guide (colors, typography, components), finalized static site implementation, admin configuration, deployment scripts, and a maintenance handbook.
+
+9. Timeline & Review
+   - Phase 1: IA + wireframes
+   - Phase 2: Visual design + component library
+   - Phase 3: Implementation + CMS wiring + accessibility pass
+   - Phase 4: Deployment to GitHub Pages and handoff walkthrough
