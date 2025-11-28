@@ -7,7 +7,7 @@ backend:
 media_folder: "public/uploads"
 public_folder: "/uploads"
 
-site_url: https://example.com
+site_url: https://blgpb.github.io/wentaoyu.github.io/
 logo_url: https://astro.build/favicon.svg
 
 collections:
